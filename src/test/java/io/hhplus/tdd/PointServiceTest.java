@@ -91,4 +91,34 @@ public class PointServiceTest {
 		assertThat(pointHistories).isNotEmpty();
 
 	}
+
+	@Test
+	@DisplayName("유저의 포인트를 사용한다.")
+	void usePointTest() {
+		// given
+		Long userId = 1L;
+		Long amount = 100L;
+		UserPointRequest userPointRequest = new UserPointRequest(amount);
+		pointService.charge(userId, userPointRequest);
+
+		// when
+		UserPointResponse result = pointService.use(userId, userPointRequest);
+		UserPointResponse expectResult = pointService.getUserPoint(userId);
+
+		// then
+		assertThat(result.id()).isEqualTo(expectResult.id());
+		assertThat(result.point()).isEqualTo(expectResult.point());
+	}
+
+	@Test
+	@DisplayName("포인트를 사용할때 잔고가 부족하면 RuntimeException을 던진다")
+	void usePointTest_whenAmountExceedsBalance_thenThrowException() {
+		// given
+		Long userId = 1L;
+		Long amount = 100L;
+		UserPointRequest userPointRequest = new UserPointRequest(amount);
+
+		// when & then
+		assertThrows(RuntimeException.class, () -> pointService.use(userId, userPointRequest));
+	}
 }

@@ -58,7 +58,10 @@ public class PointController {
      * TODO - 특정 유저의 포인트를 사용하는 기능을 작성해주세요.
      */
     @PatchMapping("{id}/use")
-    public UserPoint use(@PathVariable Long id, @RequestBody Long amount) {
-        return new UserPoint(0L, 0L, 0L);
+    public UserPointResponse use(
+        @PathVariable Long id,
+        @Valid @RequestBody UserPointRequest userPointRequest
+    ) {
+        return pointService.use(id, userPointRequest);
     }
 }

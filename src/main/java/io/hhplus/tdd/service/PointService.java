@@ -43,4 +43,16 @@ public class PointService {
 		return UserPointResponse.of(userPoint);
 	}
 
+	public synchronized UserPointResponse use(Long userId, UserPointRequest userPointRequest) {
+		UserPoint originUserPoint = userPointTable.selectById(userId);
+
+		if (originUserPoint.point() < userPointRequest.amount()) {
+			throw new RuntimeException("Not enough points to use");
+		}
+
+		UserPoint userPoint = userPointTable.insertOrUpdate(userId, originUserPoint.point() - userPointRequest.amount());
+		pointHistoryTable.insert(userId, userPointRequest.amount(), TransactionType.USE, System.currentTimeMillis());
+		return UserPointResponse.of(userPoint);
+	}
+
 }
