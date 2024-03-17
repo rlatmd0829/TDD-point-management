@@ -1,6 +1,6 @@
 package io.hhplus.tdd.database;
 
-import io.hhplus.tdd.point.UserPoint;
+import io.hhplus.tdd.domain.UserPoint;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -13,8 +13,13 @@ import java.util.Map;
 public class UserPointTable {
     private Map<Long, UserPoint> table = new HashMap<>();
 
-    public UserPoint selectById(Long id) throws InterruptedException {
-        Thread.sleep(Long.parseLong(String.valueOf(Math.random())) * 200L);
+    public UserPoint selectById(Long id) {
+        long sleepTimeMillis = (long) (Math.random() * 200L);
+        try {
+            Thread.sleep(sleepTimeMillis);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
         UserPoint userPoint = table.get(id);
 
@@ -24,8 +29,13 @@ public class UserPointTable {
         return userPoint;
     }
 
-    public UserPoint insertOrUpdate(Long id, Long amount) throws InterruptedException {
-        Thread.sleep(Long.parseLong(String.valueOf(Math.random())) * 300L);
+    public UserPoint insertOrUpdate(Long id, Long amount) {
+        long sleepTimeMillis = (long) (Math.random() * 200L);
+        try {
+            Thread.sleep(sleepTimeMillis);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
         UserPoint userPoint = new UserPoint(id, amount, System.currentTimeMillis());
         table.put(id, userPoint);

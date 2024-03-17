@@ -1,6 +1,12 @@
-package io.hhplus.tdd.point;
+package io.hhplus.tdd.controller;
 
+import io.hhplus.tdd.domain.PointHistory;
+import io.hhplus.tdd.domain.UserPoint;
+import io.hhplus.tdd.dto.reseponse.UserPointResponse;
+import io.hhplus.tdd.service.PointService;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -10,12 +16,18 @@ import java.util.List;
 @RequestMapping("/point")
 @RestController
 public class PointController {
+    private final PointService pointService;
+
+    public PointController(PointService pointService) {
+        this.pointService = pointService;
+    }
+
     /**
      * TODO - 특정 유저의 포인트를 조회하는 기능을 작성해주세요.
      */
     @GetMapping("{id}")
-    public UserPoint point(@PathVariable Long id) {
-        return new UserPoint(0L, 0L, 0L);
+    public UserPointResponse point(@PathVariable Long id) {
+        return pointService.getUserPoint(id);
     }
 
     /**
