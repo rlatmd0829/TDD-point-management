@@ -3,6 +3,8 @@ package io.hhplus.tdd;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,6 +13,7 @@ import io.hhplus.tdd.database.PointHistoryTable;
 import io.hhplus.tdd.database.UserPointTable;
 import io.hhplus.tdd.domain.UserPoint;
 import io.hhplus.tdd.dto.request.UserPointRequest;
+import io.hhplus.tdd.dto.reseponse.PointHistoryResponse;
 import io.hhplus.tdd.dto.reseponse.UserPointResponse;
 import io.hhplus.tdd.service.PointService;
 
@@ -70,6 +73,22 @@ public class PointServiceTest {
 	void chargePointTest_whenAmountIsNull_thenThrowNullPointerException() {
 		// given & when & then
 		assertThrows(NullPointerException.class, () -> new UserPointRequest(null));
+	}
+
+	@Test
+	@DisplayName("유저의 포인트 내역을 조회한다.")
+	void getUserPointHistoriesTest() {
+		// given
+		Long userId = 1L;
+		Long amount = 100L;
+		UserPointRequest userPointRequest = new UserPointRequest(amount);
+		pointService.charge(userId, userPointRequest);
+
+		// when
+		List<PointHistoryResponse> pointHistories = pointService.getUserPointHistories(userId);
+
+		// then
+		assertThat(pointHistories).isNotEmpty();
 
 	}
 }

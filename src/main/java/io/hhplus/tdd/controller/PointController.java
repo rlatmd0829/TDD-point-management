@@ -3,6 +3,7 @@ package io.hhplus.tdd.controller;
 import io.hhplus.tdd.domain.PointHistory;
 import io.hhplus.tdd.domain.UserPoint;
 import io.hhplus.tdd.dto.request.UserPointRequest;
+import io.hhplus.tdd.dto.reseponse.PointHistoryResponse;
 import io.hhplus.tdd.dto.reseponse.UserPointResponse;
 import io.hhplus.tdd.service.PointService;
 import jakarta.validation.Valid;
@@ -38,8 +39,8 @@ public class PointController {
      * TODO - 특정 유저의 포인트 충전/이용 내역을 조회하는 기능을 작성해주세요.
      */
     @GetMapping("{id}/histories")
-    public List<PointHistory> history(@PathVariable Long id) {
-        return Collections.emptyList();
+    public List<PointHistoryResponse> history(@PathVariable Long id) {
+        return pointService.getUserPointHistories(id);
     }
 
     /**
