@@ -21,8 +21,13 @@ public class PointHistoryTable {
             Long amount,
             TransactionType transactionType,
             Long updateMillis
-    ) throws InterruptedException {
-        Thread.sleep(Long.parseLong(String.valueOf(Math.random())) * 300L);
+    ) {
+        long sleepTimeMillis = (long) (Math.random() * 300L);
+        try {
+            Thread.sleep(sleepTimeMillis);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
         PointHistory history = new PointHistory(cursor++, id, transactionType, amount, updateMillis);
         table.add(history);

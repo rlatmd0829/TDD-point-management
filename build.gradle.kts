@@ -39,6 +39,7 @@ dependencies {
 
 	compileOnly(libs.lombok)
 	annotationProcessor(libs.lombok)
+	implementation ("org.springframework.boot:spring-boot-starter-validation")
 }
 
 // bundling tasks

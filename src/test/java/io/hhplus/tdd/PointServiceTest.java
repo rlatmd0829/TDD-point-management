@@ -1,6 +1,7 @@
 package io.hhplus.tdd;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import io.hhplus.tdd.database.PointHistoryTable;
 import io.hhplus.tdd.database.UserPointTable;
 import io.hhplus.tdd.domain.UserPoint;
+import io.hhplus.tdd.dto.request.UserPointRequest;
 import io.hhplus.tdd.dto.reseponse.UserPointResponse;
 import io.hhplus.tdd.service.PointService;
 
@@ -44,5 +46,30 @@ public class PointServiceTest {
 		// then
 		assertThat(result.id()).isEqualTo(expectResult.id());
 		assertThat(result.point()).isEqualTo(expectResult.point());
+	}
+
+	@Test
+	@DisplayName("유저의 포인트를 충전한다")
+	void chargePointTest() {
+		// given
+		Long userId = 1L;
+		Long amount = 100L;
+		UserPointRequest userPointRequest = new UserPointRequest(amount);
+
+		// when
+		UserPointResponse expectResult = pointService.getUserPoint(1L);
+		UserPointResponse result = pointService.charge(userId, userPointRequest);
+
+		// then
+		assertThat(result.id()).isEqualTo(expectResult.id());
+		assertThat(result.point()).isEqualTo(amount);
+	}
+
+	@Test
+	@DisplayName("포인트가 null일 경우 NullPointerException을 던진다")
+	void chargePointTest_whenAmountIsNull_thenThrowNullPointerException() {
+		// given & when & then
+		assertThrows(NullPointerException.class, () -> new UserPointRequest(null));
+
 	}
 }

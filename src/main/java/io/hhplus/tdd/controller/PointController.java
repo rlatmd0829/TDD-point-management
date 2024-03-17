@@ -2,11 +2,14 @@ package io.hhplus.tdd.controller;
 
 import io.hhplus.tdd.domain.PointHistory;
 import io.hhplus.tdd.domain.UserPoint;
+import io.hhplus.tdd.dto.request.UserPointRequest;
 import io.hhplus.tdd.dto.reseponse.UserPointResponse;
 import io.hhplus.tdd.service.PointService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -15,6 +18,7 @@ import java.util.List;
 @Slf4j
 @RequestMapping("/point")
 @RestController
+@Validated
 public class PointController {
     private final PointService pointService;
 
@@ -42,8 +46,11 @@ public class PointController {
      * TODO - 특정 유저의 포인트를 충전하는 기능을 작성해주세요.
      */
     @PatchMapping("{id}/charge")
-    public UserPoint charge(@PathVariable Long id, @RequestBody Long amount) {
-        return new UserPoint(0L, 0L, 0L);
+    public UserPointResponse charge(
+        @PathVariable Long id,
+        @Valid @RequestBody UserPointRequest userPointRequest
+	) {
+        return pointService.charge(id, userPointRequest);
     }
 
     /**
