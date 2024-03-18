@@ -1,4 +1,4 @@
-package io.hhplus.tdd;
+package io.hhplus.tdd.unit;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,7 +22,7 @@ import io.hhplus.tdd.dto.reseponse.PointHistoryResponse;
 import io.hhplus.tdd.dto.reseponse.UserPointResponse;
 import io.hhplus.tdd.service.PointService;
 
-public class PointServiceTest {
+class PointServiceTest {
 	/*- PATCH  `/point/{id}/charge` : 포인트를 충전한다.
 		- PATCH `/point/{id}/use` : 포인트를 사용한다.
 		- GET `/point/{id}` : 포인트를 조회한다.
@@ -40,7 +40,7 @@ public class PointServiceTest {
 	}
 
 	@Test
-	@DisplayName("유저의 포인트를 조회한다")
+	@DisplayName("유저의 포인트를 조회한다.")
 	void getUserPointTest() {
 		// given
 		Long userId = 1L;
@@ -57,7 +57,7 @@ public class PointServiceTest {
 	}
 
 	@Test
-	@DisplayName("유저의 포인트를 충전한다")
+	@DisplayName("유저의 포인트를 충전한다.")
 	void chargePointTest() {
 		// given
 		Long userId = 1L;

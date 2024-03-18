@@ -11,4 +11,7 @@ public record UserPointRequest(
 	public UserPointRequest {
 		Objects.requireNonNull(amount, "Amount must not be null");
 	}
+	public static UserPointRequest of(Long amount) {
+		return new UserPointRequest(amount);
+	}
 }
