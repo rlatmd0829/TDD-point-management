@@ -45,12 +45,13 @@ class PointControllerTest {
 		TransactionType transactionType = TransactionType.CHARGE;
 		Long updateMillis = System.currentTimeMillis();
 
+		// 여기서 넣은 내용이 BeforeEach로 돌면서 데이터가 쌓이긴한다.
 		userPointTable.insertOrUpdate(userId, amount);
 		pointHistoryTable.insert(userId, amount, transactionType, updateMillis);
 	}
 
 	@Test
-	@DisplayName("유저의 포인트를 조회한다.")
+	@DisplayName("유저의 포인트 조회 테스트")
 	void getUserPointTest() throws Exception {
 		mockMvc.perform(
 				MockMvcRequestBuilders.get("/point/{id}", 1L))
@@ -60,7 +61,7 @@ class PointControllerTest {
 	}
 
 	@Test
-	@DisplayName("유저의 포인트를 충전한다.")
+	@DisplayName("유저의 포인트 충전 테스트")
 	void chargePointTest() throws Exception {
 		UserPointRequest userPointRequest = UserPointRequest.of(100L);
 
@@ -74,10 +75,8 @@ class PointControllerTest {
 			.andExpect(jsonPath("$.point").value(200L));
 	}
 
-	/*TODO 포인트 충전이 null이 들어온다*/
-
 	@Test
-	@DisplayName("유저의 포인트 내역을 조회한다.")
+	@DisplayName("유저의 포인트 내역 조회 테스트")
 	void getUserPointHistoriesTest() throws Exception {
 		mockMvc.perform(
 				MockMvcRequestBuilders.get("/point/{id}/histories", 1L))
@@ -89,7 +88,7 @@ class PointControllerTest {
 	}
 
 	@Test
-	@DisplayName("유저의 포인트를 사용한다.")
+	@DisplayName("유저의 포인트 사용 테스트")
 	void usePointTest() throws Exception {
 		UserPointRequest userPointRequest = UserPointRequest.of(100L);
 
@@ -103,6 +102,17 @@ class PointControllerTest {
 			.andExpect(jsonPath("$.point").value(0L));
 	}
 
-	/*TODO 유저의 남은 잔액보다 많은 포인트를 사용하여 에러가 발생하는 테스트*/
+	@Test
+	@DisplayName("유저의 남은 잔액보다 많은 포인트를 사용하여 에러 발생 테스트")
+	void usePointTest_whenUserBalanceIsExceeded_thenThrowRuntimeException() throws Exception {
+		UserPointRequest userPointRequest = UserPointRequest.of(200L);
+
+		mockMvc.perform(
+				MockMvcRequestBuilders
+					.patch("/point/{id}/use", 1L)
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(objectMapper.writeValueAsString(userPointRequest)))
+			.andExpect(status().isInternalServerError());
+	}
 
 }

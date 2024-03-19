@@ -40,7 +40,7 @@ class PointServiceTest {
 	}
 
 	@Test
-	@DisplayName("유저의 포인트를 조회한다.")
+	@DisplayName("유저의 포인트 조회 테스트")
 	void getUserPointTest() {
 		// given
 		Long userId = 1L;
@@ -57,7 +57,7 @@ class PointServiceTest {
 	}
 
 	@Test
-	@DisplayName("유저의 포인트를 충전한다.")
+	@DisplayName("유저의 포인트 충전 테스트")
 	void chargePointTest() {
 		// given
 		Long userId = 1L;
@@ -74,14 +74,14 @@ class PointServiceTest {
 	}
 
 	@Test
-	@DisplayName("포인트가 null일 경우 NullPointerException을 던진다")
+	@DisplayName("포인트가 null일 경우 테스트")
 	void chargePointTest_whenAmountIsNull_thenThrowNullPointerException() {
 		// given & when & then
 		assertThrows(NullPointerException.class, () -> new UserPointRequest(null));
 	}
 
 	@Test
-	@DisplayName("유저의 포인트 내역을 조회한다.")
+	@DisplayName("유저의 포인트 내역을 조회 테스트")
 	void getUserPointHistoriesTest() {
 		// given
 		Long userId = 1L;
@@ -98,7 +98,7 @@ class PointServiceTest {
 	}
 
 	@Test
-	@DisplayName("유저의 포인트를 사용한다.")
+	@DisplayName("유저의 포인트 사용 테스트")
 	void usePointTest() {
 		// given
 		Long userId = 1L;
@@ -116,7 +116,7 @@ class PointServiceTest {
 	}
 
 	@Test
-	@DisplayName("포인트를 사용할때 잔고가 부족하면 RuntimeException을 던진다")
+	@DisplayName("유저의 남은 잔액보다 많은 포인트를 사용하여 에러 발생 테스트")
 	void usePointTest_whenAmountExceedsBalance_thenThrowException() {
 		// given
 		Long userId = 1L;
