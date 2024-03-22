@@ -2,6 +2,7 @@ package io.hhplus.tdd.unit;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,10 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.hhplus.tdd.database.PointHistoryTable;
 import io.hhplus.tdd.database.UserPointTable;
@@ -22,6 +27,7 @@ import io.hhplus.tdd.dto.reseponse.PointHistoryResponse;
 import io.hhplus.tdd.dto.reseponse.UserPointResponse;
 import io.hhplus.tdd.service.PointService;
 
+@ExtendWith(MockitoExtension.class)
 class PointServiceTest {
 	/*- PATCH  `/point/{id}/charge` : 포인트를 충전한다.
 		- PATCH `/point/{id}/use` : 포인트를 사용한다.
@@ -30,14 +36,14 @@ class PointServiceTest {
 		- 잔고가 부족할 경우, 포인트 사용은 실패하여야 합니다.
 		- 동시에 여러 건의 포인트 충전, 이용 요청이 들어올 경우 순차적으로 처리되어야 합니다.*/
 
+	@InjectMocks
 	private PointService pointService;
 
-	@BeforeEach
-	void setUp() {
-		UserPointTable userPointTable = new UserPointTable();
-		PointHistoryTable pointHistoryTable = new PointHistoryTable();
-		pointService = new PointService(userPointTable, pointHistoryTable);
-	}
+	@Mock
+	private UserPointTable userPointTable;
+
+	@Mock
+	private PointHistoryTable pointHistoryTable;
 
 	@Test
 	@DisplayName("유저의 포인트 조회 테스트")
@@ -48,6 +54,7 @@ class PointServiceTest {
 		Long updateMillis = 0L;
 
 		// when
+		when(userPointTable.selectById(userId)).thenReturn(new UserPoint(userId, point, updateMillis));
 		UserPoint expectResult = new UserPoint(userId, point, updateMillis);
 		UserPointResponse result = pointService.getUserPoint(1L);
 
@@ -61,16 +68,20 @@ class PointServiceTest {
 	void chargePointTest() {
 		// given
 		Long userId = 1L;
+		Long point = 100L;
 		Long amount = 100L;
+		Long updateMillis = 0L;
 		UserPointRequest userPointRequest = new UserPointRequest(amount);
 
 		// when
-		UserPointResponse expectResult = pointService.getUserPoint(1L);
+		when(userPointTable.selectById(userId)).thenReturn(new UserPoint(userId, point, updateMillis));
+		when(userPointTable.insertOrUpdate(userId, amount)).thenReturn(new UserPoint(userId, point + amount, updateMillis));
+		// UserPointResponse expectResult = pointService.getUserPoint(1L);
 		UserPointResponse result = pointService.charge(userId, userPointRequest);
 
 		// then
-		assertThat(result.id()).isEqualTo(expectResult.id());
-		assertThat(result.point()).isEqualTo(amount);
+		assertThat(result.id()).isEqualTo(userId);
+		assertThat(result.point()).isEqualTo(point + amount);
 	}
 
 	@Test

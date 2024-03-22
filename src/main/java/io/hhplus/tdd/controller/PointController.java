@@ -1,7 +1,5 @@
 package io.hhplus.tdd.controller;
 
-import io.hhplus.tdd.domain.PointHistory;
-import io.hhplus.tdd.domain.UserPoint;
 import io.hhplus.tdd.dto.request.UserPointRequest;
 import io.hhplus.tdd.dto.reseponse.PointHistoryResponse;
 import io.hhplus.tdd.dto.reseponse.UserPointResponse;
@@ -9,7 +7,6 @@ import io.hhplus.tdd.service.PointService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
