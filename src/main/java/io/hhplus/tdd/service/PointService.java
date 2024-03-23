@@ -16,17 +16,15 @@ import io.hhplus.tdd.domain.UserPoint;
 import io.hhplus.tdd.dto.request.UserPointRequest;
 import io.hhplus.tdd.dto.reseponse.PointHistoryResponse;
 import io.hhplus.tdd.dto.reseponse.UserPointResponse;
+import io.hhplus.tdd.handle.LockHandler;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class PointService {
 	private final UserPointTable userPointTable;
 	private final PointHistoryTable pointHistoryTable;
-	private final ConcurrentHashMap<Long, Lock> userLocks = new ConcurrentHashMap<>();
-
-	public PointService(UserPointTable userPointTable, PointHistoryTable pointHistoryTable) {
-		this.userPointTable = userPointTable;
-		this.pointHistoryTable = pointHistoryTable;
-	}
+	private final LockHandler lockHandler;
 
 	public UserPointResponse getUserPoint(Long userId) {
 		UserPoint userPoint = userPointTable.selectById(userId);
@@ -41,36 +39,30 @@ public class PointService {
 	}
 
 	public UserPointResponse charge(Long userId, UserPointRequest userPointRequest) {
-		Lock userLock = userLocks.computeIfAbsent(userId, k -> new ReentrantLock());
-
-		userLock.lock();
 		try {
+			lockHandler.acquireLockForUser(userId);
+
 			UserPoint originUserPoint = userPointTable.selectById(userId);
-			UserPoint userPoint = userPointTable.insertOrUpdate(userId, originUserPoint.point() + userPointRequest.amount());
+			originUserPoint.charge(userPointRequest.amount(), System.currentTimeMillis());
+			UserPoint userPoint = userPointTable.insertOrUpdate(userId, originUserPoint.getPoint());
 			pointHistoryTable.insert(userId, userPointRequest.amount(), TransactionType.CHARGE, System.currentTimeMillis());
 			return UserPointResponse.of(userPoint);
 		} finally {
-			userLock.unlock();
+			lockHandler.releaseLockForUser(userId);
 		}
 	}
 
 	public UserPointResponse use(Long userId, UserPointRequest userPointRequest) {
-		Lock userLock = userLocks.computeIfAbsent(userId, k -> new ReentrantLock());
-
-		userLock.lock();
 		try {
+			lockHandler.acquireLockForUser(userId);
+
 			UserPoint originUserPoint = userPointTable.selectById(userId);
-
-			// TODO 이걸 UserPoint 객체에 넣으면 테스트 코드로 동시성 테스트가 가능해질것 같다?
-			if (originUserPoint.point() < userPointRequest.amount()) {
-				throw new RuntimeException("Not enough points to use");
-			}
-
-			UserPoint userPoint = userPointTable.insertOrUpdate(userId, originUserPoint.point() - userPointRequest.amount());
+			originUserPoint.use(userPointRequest.amount(), System.currentTimeMillis());
+			UserPoint userPoint = userPointTable.insertOrUpdate(userId, originUserPoint.getPoint());
 			pointHistoryTable.insert(userId, userPointRequest.amount(), TransactionType.USE, System.currentTimeMillis());
 			return UserPointResponse.of(userPoint);
 		} finally {
-			userLock.unlock();
+			lockHandler.releaseLockForUser(userId);
 		}
 	}
 

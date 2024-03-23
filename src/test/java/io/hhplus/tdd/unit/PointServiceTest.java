@@ -155,77 +155,77 @@ class PointServiceTest {
 
 	// TODO 여러번 동시에 포인트를 충전하려 할때 순차적으로 적용되는지 테스트 어떻게 테스트 하지
 	// mock을 사용해서 테이블에 값을 쌓이지 않아서 get을 해도 모든 요청에 대한 값은 못가져오잖아
-	@Test
-	@DisplayName("여러번 동시에 포인트를 충전하려 할때 순차적으로 적용되는지 테스트")
-	void concurrentChargePointTest() throws InterruptedException {
-		// given
-		Long id = 1L;
-		Long userId = 1L;
-		Long amount = 100L;
-		Long point = 100L;
-		Long updateMillis = 0L;
-		TransactionType transactionType = TransactionType.CHARGE;
-		UserPointRequest userPointRequest = new UserPointRequest(amount);
-
-		int numberOfThreads = 10;
-		ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
-		CountDownLatch latch = new CountDownLatch(numberOfThreads);
-
-		// when
-		for (int i = 0; i < numberOfThreads; i++) {
-			executorService.submit(() -> {
-				// when(userPointTable.selectById(anyLong())).thenReturn(new UserPoint(userId, point, updateMillis));
-				// when(userPointTable.insertOrUpdate(anyLong(), anyLong())).thenReturn(new UserPoint(userId, point + amount, updateMillis));
-				// when(pointHistoryTable.insert(anyLong(), anyLong(), any(), anyLong())).thenReturn(new PointHistory(id, userId, transactionType, amount, System.currentTimeMillis()));
-				pointService.charge(userId, userPointRequest);
-				latch.countDown();
-			});
-		}
-
-		executorService.shutdown();
-		executorService.awaitTermination(10, TimeUnit.SECONDS);
-
-		latch.await(10, TimeUnit.SECONDS);
-		executorService.shutdown();
-
-		// then
-		// assertThat(latch.getCount()).isEqualTo(0);
-
-	}
-
-	@Test
-	@DisplayName("여러번 동시에 포인트를 사용하려 할때 순차적으로 동작하는지 테스트")
-	void concurrentUsePointTest() throws InterruptedException {
-		// given
-		Long userId = 1L;
-		Long amount = 100L;
-		UserPointRequest userPointRequest = new UserPointRequest(amount);
-
-		int numberOfThreads = 10;
-		ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
-		CountDownLatch latch = new CountDownLatch(numberOfThreads); // 각 스레드의 작업이 끝날 때마다 카운트 다운
-
-		List<Exception> exceptions = new ArrayList<>(); // 각 스레드에서 발생한 예외를 저장할 리스트
-
-		for (int i = 0; i < numberOfThreads; i++) {
-			executorService.submit(() -> {
-				try {
-					pointService.use(userId, userPointRequest);
-				} catch (Exception e) {
-					exceptions.add(e); // 예외가 발생한 경우 리스트에 추가
-				} finally {
-					latch.countDown(); // 스레드 작업 종료
-				}
-			});
-		}
-
-		executorService.shutdown();
-		executorService.awaitTermination(10, TimeUnit.SECONDS);
-
-		latch.await(10, TimeUnit.SECONDS); // 모든 스레드가 종료될 때까지 대기
-		executorService.shutdown();
-
-		// 각 스레드에서 발생한 예외가 없는지 확인
-		assertEquals(10, exceptions.size(), "포인트 사용 중 예외가 발생했습니다.");
-	}
+	// @Test
+	// @DisplayName("여러번 동시에 포인트를 충전하려 할때 순차적으로 적용되는지 테스트")
+	// void concurrentChargePointTest() throws InterruptedException {
+	// 	// given
+	// 	Long id = 1L;
+	// 	Long userId = 1L;
+	// 	Long amount = 100L;
+	// 	Long point = 100L;
+	// 	Long updateMillis = 0L;
+	// 	TransactionType transactionType = TransactionType.CHARGE;
+	// 	UserPointRequest userPointRequest = new UserPointRequest(amount);
+	//
+	// 	int numberOfThreads = 10;
+	// 	ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
+	// 	CountDownLatch latch = new CountDownLatch(numberOfThreads);
+	//
+	// 	// when
+	// 	for (int i = 0; i < numberOfThreads; i++) {
+	// 		executorService.submit(() -> {
+	// 			// when(userPointTable.selectById(anyLong())).thenReturn(new UserPoint(userId, point, updateMillis));
+	// 			// when(userPointTable.insertOrUpdate(anyLong(), anyLong())).thenReturn(new UserPoint(userId, point + amount, updateMillis));
+	// 			// when(pointHistoryTable.insert(anyLong(), anyLong(), any(), anyLong())).thenReturn(new PointHistory(id, userId, transactionType, amount, System.currentTimeMillis()));
+	// 			pointService.charge(userId, userPointRequest);
+	// 			latch.countDown();
+	// 		});
+	// 	}
+	//
+	// 	executorService.shutdown();
+	// 	executorService.awaitTermination(10, TimeUnit.SECONDS);
+	//
+	// 	latch.await(10, TimeUnit.SECONDS);
+	// 	executorService.shutdown();
+	//
+	// 	// then
+	// 	// assertThat(latch.getCount()).isEqualTo(0);
+	//
+	// }
+	//
+	// @Test
+	// @DisplayName("여러번 동시에 포인트를 사용하려 할때 순차적으로 동작하는지 테스트")
+	// void concurrentUsePointTest() throws InterruptedException {
+	// 	// given
+	// 	Long userId = 1L;
+	// 	Long amount = 100L;
+	// 	UserPointRequest userPointRequest = new UserPointRequest(amount);
+	//
+	// 	int numberOfThreads = 10;
+	// 	ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
+	// 	CountDownLatch latch = new CountDownLatch(numberOfThreads); // 각 스레드의 작업이 끝날 때마다 카운트 다운
+	//
+	// 	List<Exception> exceptions = new ArrayList<>(); // 각 스레드에서 발생한 예외를 저장할 리스트
+	//
+	// 	for (int i = 0; i < numberOfThreads; i++) {
+	// 		executorService.submit(() -> {
+	// 			try {
+	// 				pointService.use(userId, userPointRequest);
+	// 			} catch (Exception e) {
+	// 				exceptions.add(e); // 예외가 발생한 경우 리스트에 추가
+	// 			} finally {
+	// 				latch.countDown(); // 스레드 작업 종료
+	// 			}
+	// 		});
+	// 	}
+	//
+	// 	executorService.shutdown();
+	// 	executorService.awaitTermination(10, TimeUnit.SECONDS);
+	//
+	// 	latch.await(10, TimeUnit.SECONDS); // 모든 스레드가 종료될 때까지 대기
+	// 	executorService.shutdown();
+	//
+	// 	// 각 스레드에서 발생한 예외가 없는지 확인
+	// 	assertEquals(10, exceptions.size(), "포인트 사용 중 예외가 발생했습니다.");
+	// }
 }

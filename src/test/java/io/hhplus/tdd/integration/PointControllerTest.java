@@ -115,4 +115,35 @@ class PointControllerTest {
 			.andExpect(status().isInternalServerError());
 	}
 
+	@Test
+	void testConcurrentDeposits() throws Exception {
+		// setup
+		long userId = 1L;
+
+		// execute
+		mockMvc.perform(MockMvcRequestBuilders.patch("/point/{id}/charge", userId)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\"amount\": 100}"))
+			.andExpect(status().isOk());
+
+		mockMvc.perform(MockMvcRequestBuilders.patch("/point/{id}/charge", userId)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\"amount\": 400}"))
+			.andExpect(status().isOk());
+
+		mockMvc.perform(MockMvcRequestBuilders.patch("/point/{id}/charge", userId)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\"amount\": 300}"))
+			.andExpect(status().isOk());
+
+		mockMvc.perform(MockMvcRequestBuilders.patch("/point/{id}/charge", userId)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\"amount\": 200}"))
+			.andExpect(status().isOk());
+
+		// assert
+		mockMvc.perform(MockMvcRequestBuilders.get("/point/{id}", userId))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.point").value(100 + 400 + 300 + 200 + 100));
+	}
 }

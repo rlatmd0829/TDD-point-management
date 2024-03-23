@@ -9,9 +9,9 @@ public record UserPointResponse(
 ) {
 	public static UserPointResponse of(UserPoint userPoint) {
 		return new UserPointResponse(
-			userPoint.id(),
-			userPoint.point(),
-			userPoint.updateMillis()
+			userPoint.getId(),
+			userPoint.getPoint(),
+			userPoint.getUpdateMillis()
 		);
 	}
 }
